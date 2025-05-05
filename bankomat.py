@@ -8,6 +8,8 @@ class Bankomat:
         self.amount = 0
         self.machine_balance = 11000
         self.msgs = []
+        self.attempts = 0
+        self.max_attempts = 3
 
     def get_message(self):
         msg = ""
@@ -26,19 +28,24 @@ class Bankomat:
         self.msgs.append("Card removed, don't forget it!")
         self.card = None
         self.valid_card = False
+        self.attempts = 0
         return self.card
 
     def enter_pin(self, pin):
         if self.card == None:
             self.msgs.append("Card not inserted")
             return None
-        elif self.card.pin == pin:
+        elif self.card.pin == pin and self.attempts < self.max_attempts:
             self.msgs.append("Correct pin")
             self.valid_card = True
+            self.amount = 0
             return True
         else:
             self.msgs.append("Incorrect pin")
             self.valid_card = False
+            self.attempts += 1
+            if self.attempts >= self.max_attempts:
+                self.eject_card(self.card)
             return False
 
     def withdraw(self, amount):

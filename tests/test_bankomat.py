@@ -34,6 +34,17 @@ def test_enter_valid_pin():
     result = bankomat.enter_pin("0123")
     assert result == True
 
+    def test_three_strikes():
+        bankomat = Bankomat()
+        account = Account("Benjamin", "Berglund", "700109-2456")
+        card = Card(account)
+        bankomat.insert_card(card)
+        bankomat.enter_pin("3214")
+        bankomat.enter_pin("9999")
+        result = bankomat.enter_pin("TreFemNioTvå")
+        assert result is None
+
+
 def test_money_withdrawal():
     initial_bankomat_balance = 110000
     initial_account_balance = 1000

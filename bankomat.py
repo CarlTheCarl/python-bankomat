@@ -1,8 +1,10 @@
+from card import Card
 
 class Bankomat:
     def __init__(self):
         self.card_inserted = False
         self.card = None
+        self.valid_card = False
         self.amount = 0
         self.machine_balance = 11000
         self.msgs = []
@@ -17,21 +19,36 @@ class Bankomat:
         self.card_inserted = True
         self.card = card
         self.msgs.append("Card inserted")
+        return self.card
 
     def eject_card(self):
         self.card_inserted = False
         self.msgs.append("Card removed, don't forget it!")
+        self.card = None
+        self.valid_card = False
+        return self.card
 
     def enter_pin(self, pin):
-        if self.card.pin == pin:
+        if self.card == None:
+            self.msgs.append("Card not inserted")
+            return None
+        elif self.card.pin == pin:
             self.msgs.append("Correct pin")
+            self.valid_card = True
             return True
         else:
             self.msgs.append("Incorrect pin")
+            self.valid_card = False
             return False
 
     def withdraw(self, amount):
-        if amount > 0 and amount <= self.machine_balance and amount <= self.card.account.get_balance():
+        if self.card == None:
+            self.msgs.append("No card inserted")
+            return None
+        elif self.valid_card == False:
+            self.msgs.append("Your card is invalid")
+            return None
+        elif amount > 0 and amount <= self.machine_balance and amount <= self.card.account.get_balance():
             self.machine_balance -= amount
             self.card.account.withdraw(amount)
             self.msgs.append(f"Withdrawing {amount}")

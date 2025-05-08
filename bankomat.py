@@ -38,15 +38,17 @@ class Bankomat:
         elif self.card.pin == pin and self.attempts < self.max_attempts:
             self.msgs.append("Correct pin")
             self.valid_card = True
-            self.amount = 0
+            self.attempts = 0
             return True
         else:
             self.msgs.append("Incorrect pin")
             self.valid_card = False
             self.attempts += 1
+            print(self.attempts)
             if self.attempts >= self.max_attempts:
-                self.eject_card(self.card)
-            return False
+                return self.eject_card()
+            else:
+                return False
 
     def withdraw(self, amount):
         if self.card == None:

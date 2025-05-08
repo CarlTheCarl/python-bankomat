@@ -1,4 +1,6 @@
 import pytest
+
+import bankomat
 from bankomat import Bankomat
 from account import Account
 from card import Card
@@ -34,15 +36,15 @@ def test_enter_valid_pin():
     result = bankomat.enter_pin("0123")
     assert result == True
 
-    def test_three_strikes():
-        bankomat = Bankomat()
-        account = Account("Benjamin", "Berglund", "700109-2456")
-        card = Card(account)
-        bankomat.insert_card(card)
-        bankomat.enter_pin("3214")
-        bankomat.enter_pin("9999")
-        result = bankomat.enter_pin("TreFemNioTvå")
-        assert result is None
+def test_three_strikes():
+    bankomat = Bankomat()
+    account = Account("Benjamin", "Berglund", "700109-2456")
+    card = Card(account)
+    bankomat.insert_card(card)
+    bankomat.enter_pin("3214")
+    bankomat.enter_pin("9999")
+    result = bankomat.enter_pin("TreFemNioTvå")
+    assert result is None
 
 
 def test_money_withdrawal():
@@ -59,3 +61,27 @@ def test_money_withdrawal():
     assert result == withdrawal
     assert account.balance == initial_account_balance - withdrawal
     assert bankomat.machine_balance + result == initial_bankomat_balance
+
+@pytest.fixture
+def banko():
+    bankomat = Bankomat()
+    account = Account("Benjamin", "Berglund", "700109-2456", 9000)
+    card = Card(account)
+    bankomat.insert_card(card)
+    bankomat.enter_pin("0123")
+    return bankomat
+
+def test_withdraw_all(banko):
+    result = banko.withdraw(9000)
+    assert result == 9000
+    assert banko.card.account.balance == 0
+
+def test_withdraw_half(banko):
+    result = banko.withdraw(4500)
+    assert result == 4500
+    assert banko.card.account.balance == 4500
+
+def test_overdraw_account(banko):
+    result = banko.withdraw(9001)
+    assert result == 0
+    assert banko.card.account.balance == 9000
